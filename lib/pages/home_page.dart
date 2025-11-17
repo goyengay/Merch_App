@@ -5,8 +5,15 @@ import '../components/grocery_item_tile.dart';
 import '../models/cart_model.dart';
 import 'cart_page.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  String _searchQuery = '';
 
   @override
   Widget build(BuildContext context) {
@@ -63,23 +70,66 @@ class HomePage extends StatelessWidget {
             ),
           ),
 
+          const SizedBox(height: 12),
+
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            child: TextField(
+              onChanged: (value) {
+                setState(() {
+                  _searchQuery = value;
+                });
+              },
+              decoration: InputDecoration(
+                fillColor: Colors.grey[200],
+                hintText: 'Search merchandise...',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: _searchQuery.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () {
+                          setState(() {
+                            _searchQuery = '';
+                          });
+                        },
+                      )
+                    : null,
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 12),
+
           Expanded(
             child: Consumer<CartModel>(
               builder: (context, value, child) {
+                final filteredItems = value.shopItems
+                    .where(
+                      (item) => item[0].toString().toLowerCase().contains(
+                        _searchQuery.toLowerCase(),
+                      ),
+                    )
+                    .toList();
+
                 return GridView.builder(
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
                     childAspectRatio: 1 / 1.3,
                   ),
-                  itemCount: value.shopItems.length,
+                  itemCount: filteredItems.length,
                   padding: EdgeInsets.all(12.0),
                   itemBuilder: (context, index) {
+                    final item = filteredItems[index];
+                    final originalIndex = value.shopItems.indexOf(item);
                     return GroceryItemTile(
-                      itemName: value.shopItems[index][0],
-                      itemPrice: value.shopItems[index][1],
-                      imagePath: value.shopItems[index][2],
-                      color: value.shopItems[index][3],
-                      onPressed: () => value.addItemToCart(index),
+                      itemName: item[0],
+                      itemPrice: item[1],
+                      imagePath: item[2],
+                      color: item[3],
+                      onPressed: () => value.addItemToCart(originalIndex),
                     );
                   },
                 );

@@ -86,7 +86,7 @@ class CartPage extends StatelessWidget {
                           const SizedBox(height: 4),
 
                           Text(
-                            '\$' + value.calculateTotal(),
+                            '\$${value.calculateTotal()}',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 18,
@@ -96,9 +96,7 @@ class CartPage extends StatelessWidget {
                         ],
                       ),
 
-                      Container(
-                        child: Icon(Icons.payment, color: Colors.white),
-                      ),
+                      Icon(Icons.payment, color: Colors.white),
                     ],
                   ),
                 ),
